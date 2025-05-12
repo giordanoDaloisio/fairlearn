@@ -16,7 +16,6 @@ from sklearn.tree import DecisionTreeClassifier
 
 from fairlearn.datasets import fetch_diabetes_hospital
 
-# %%
 from fairlearn.metrics import (
     MetricFrame,
     count,
