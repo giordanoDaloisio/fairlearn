@@ -81,13 +81,13 @@ def _compute_fpr_fnr(y_true, y_pred, positive_label):
         FPR = FP / (FP + TN)
     return FNR, FPR
 
-def _compute_tpr_fpr_groups(data_pred, label, group_condition, positive_label):
+def _compute_tpr_fpr_groups(data_pred, label, group_condition, positive_label, label_name):
     query = "&".join([f"{k}=={v}" for k, v in group_condition.items()])
     unpriv_group = data_pred.query(query)
     priv_group = data_pred.drop(unpriv_group.index)
-    y_true_unpriv = unpriv_group["y_true"].values.ravel()
+    y_true_unpriv = unpriv_group[label_name].values.ravel()
     y_pred_unpric = unpriv_group[label].values.ravel()
-    y_true_priv = priv_group["y_true"].values.ravel()
+    y_true_priv = priv_group[label_name].values.ravel()
     y_pred_priv = priv_group[label].values.ravel()
     fpr_unpriv, tpr_unpriv = _compute_tpr_fpr(
         y_true_unpriv, y_pred_unpric, positive_label
@@ -158,19 +158,19 @@ def statistical_parity(
 
 
 def average_odds_difference(
-    data_pred: pd.DataFrame, group_condition: dict, label_name: str, positive_label: str
+    data_pred: pd.DataFrame, group_condition: dict, pred_label_name: str, positive_label: str, label_name: str
 ):
     fpr_unpriv, tpr_unpriv, fpr_priv, tpr_priv = _compute_tpr_fpr_groups(
-        data_pred, label_name, group_condition, positive_label
+        data_pred, pred_label_name, group_condition, positive_label, label_name
     )
     return ((tpr_priv - tpr_unpriv) + (fpr_priv - fpr_unpriv)) / 2
 
 
 def equalized_odds(
-    data_pred: pd.DataFrame, group_condition: dict, label_name: str, positive_label: str
+    data_pred: pd.DataFrame, group_condition: dict, pred_label_name: str, positive_label: str, label_name: str
 ):
     fpr_unpriv, tpr_unpriv, fpr_priv, tpr_priv = _compute_tpr_fpr_groups(
-        data_pred, label_name, group_condition, positive_label
+        data_pred, pred_label_name, group_condition, positive_label, label_name
     )
     return tpr_unpriv - tpr_priv
 
